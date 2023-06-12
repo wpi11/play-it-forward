@@ -5,26 +5,47 @@
 import React from 'react';
 import { Text, TextInput, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { QueryClientProvider, QueryClient, useQueryClient } from '@tanstack/react-query';
 import { createCompletion } from './modules/OpenAI';
 import styles from './styles';
 import { Button } from './components';
-import API from './api';
+import { useCachedApi } from './hooks';
 
-export default function App() {
+const queryClient = new QueryClient();
+
+type RequestStatus = 'idle' | 'start' | 'end' | 'error';
+
+export function App() {
 	const [isLoading, setIsLoading] = React.useState<boolean>(false);
+	const [status, setStatus] = React.useState<RequestStatus>('idle');
 	const [generatedQuote, setGeneratedQuote] = React.useState<string | null>('nothing to see here.');
+	const [isCached, setIsCached] = React.useState<string | undefined>('');
+	const [log, setLog] = React.useState<string[]>(['idle']);
+	const cache = useCachedApi();
+	const client = useQueryClient();
 
-	const handleAPIRequest = async () => {
-		const result = await API.get();
-
-		console.log('response:', result.data);
+	const updateLog = (item: any) => {
+		setLog((state) => [...state, item]);
 	};
 
 	const handleOpenAIRequest = async () => {
 		try {
+			setStatus('start');
+			setLog(['started request..']);
 			setIsLoading(true);
-			setGeneratedQuote('Wait, while I think on this...');
+			setGeneratedQuote(generatedQuote + '...');
+			setIsCached('');
 
+			new Promise<string>((resolve) => {
+				console.log('Tanstack query hook started..');
+				setTimeout(function () {
+					console.log('Tanstack query hook done!');
+					setIsCached(queryClient.getQueryData(['users']));
+					resolve('Done');
+				}, 1000);
+			});
+
+			updateLog('requesting openai resources..');
 			const response = await createCompletion({
 				model: 'text-davinci-003',
 				prompt: 'give me a unique random quote from someone famous to inspire me to be great',
@@ -34,28 +55,71 @@ export default function App() {
 
 			const completion = response.data;
 
+			updateLog('openai request successful..');
+
 			setGeneratedQuote(completion);
+			updateLog('all done!');
+			setStatus('end');
+
 			console.log('completion:', completion);
 		} catch (error: any) {
+			updateLog('request failed!');
+			setStatus('error');
 			console.log(error.message);
-			setGeneratedQuote(error.message);
+			updateLog(`error: ${error.message}`);
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
-	const generationStatus = isLoading ? 'Working..' : 'Generate Quote with OpenAI';
+	const requestStatus = () => {
+		switch (status) {
+			case 'idle':
+				return 'Idle';
+			case 'start':
+				return 'Thinking 🤔';
+			case 'end':
+				return 'Done ✅';
+			case 'error':
+				return 'Failed request 🙅‍♂️';
+		}
+	};
+
+	const requestLogColorStyle = (logItem: string) =>
+		logItem.includes('error') ? '#FF0000' : logItem.includes('done') ? '#008000' : '';
 
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>OpenAI Quotes</Text>
-			<TextInput multiline style={styles.textInput} value={generatedQuote as string} />
+			<Text style={styles.subTitle}>{requestStatus()}</Text>
+
+			<TextInput
+				multiline
+				style={styles.textInput}
+				editable={isLoading}
+				value={generatedQuote as string}
+			/>
 
 			<Button onPress={handleOpenAIRequest} disabled={isLoading}>
-				<Text style={styles.buttonTitle}>{generationStatus}</Text>
+				<Text style={styles.buttonTitle}>{'Request Random Quote'}</Text>
 			</Button>
+
+			<View style={{ marginTop: 40, alignSelf: 'flex-start', height: 100 }}>
+				<Text style={{ fontWeight: 'bold', marginBottom: 10 }}>Request Log:</Text>
+				{log.map((itm) => (
+					<Text key={itm} style={{ color: requestLogColorStyle(itm) }}>{`- ${itm}`}</Text>
+				))}
+			</View>
 
 			<StatusBar style="auto" />
 		</View>
+	);
+}
+
+export default function Root() {
+	return (
+		<QueryClientProvider client={queryClient}>
+			<App />
+		</QueryClientProvider>
 	);
 }
