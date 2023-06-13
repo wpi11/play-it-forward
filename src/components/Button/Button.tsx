@@ -1,21 +1,19 @@
 import { ReactNode } from 'react';
 import React from 'react-native';
 import { Pressable } from 'react-native';
-import { THEME_TYPES, useTheme } from '../../theme';
+import { THEME_TYPES } from '../../providers/theme';
 
 interface ButtonProps {
 	disabled: boolean;
 	onPress: () => void;
 	children: ReactNode;
-	styles: any;
+	style: THEME_TYPES;
 }
 
-export const Button = ({ onPress, children, disabled, styles }: ButtonProps) => {
-	// const styles = useTheme(THEME_TYPES.ACCENT);
-
+export const Button = ({ onPress, children, disabled, style }: ButtonProps) => {
 	return (
 		<Pressable
-			style={disabled ? styles.buttonDisabled : styles.button}
+			style={disabled ? style.buttonDisabled : style.button}
 			onPress={!disabled ? onPress : () => null}
 		>
 			{children}

@@ -1,7 +1,7 @@
 {
   "name": "expornstarter",
   "version": "1.0.0-development",
-  "main": "src/index.ts",
+  "main": "src/index.tsx",
   "types": "index.d.ts",
   "scripts": {
     "start": "expo start",

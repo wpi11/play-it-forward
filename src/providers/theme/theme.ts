@@ -1,13 +1,14 @@
 import tw from 'twrnc';
 
+export type THEME_TYPES = typeof defaultTheme | typeof accentTheme;
+
 /**
  * Tailwind React Native Classnames
- * styles.button becomes:
- *
- * {"backgroundColor": "#a855f7", "borderRadius": 24, "color": "#fff", "paddingBottom": 16, "paddingLeft": 16, "paddingRight": 16, "paddingTop": 16}
+ * Custom tailwind theme tokens
  */
-
-const defaultTheme = {
+export const defaultTheme = {
+	name: 'default',
+	root: tw`flex-1 bg-white`,
 	title: tw`text-4xl font-bold mb-2`,
 	subTitle: tw`text-xl text-gray-300 font-bold`,
 	container: tw`flex-1 bg-white items-center justify-center p-2`,
@@ -26,10 +27,12 @@ const defaultTheme = {
 			: tw`text-gray-900`
 };
 
-const accentTheme = {
+export const accentTheme = {
+	name: 'accent',
+	root: tw`flex-1 bg-gray-900`,
 	title: tw`text-4xl font-bold mb-2 text-white`,
 	subTitle: tw`text-xl text-gray-700 font-bold`,
-	container: tw`flex-1 bg-gray-900 items-center justify-center p-2`,
+	container: tw`flex-1 items-center justify-center p-2`,
 	button: tw`p-4 android:pt-2 bg-orange-600 rounded-md text-white w-64 items-center mb-2`,
 	buttonTitle: tw`text-white`,
 	buttonDisabled: tw`p-4 bg-gray-600 rounded-md text-white w-64 items-center focus:outline-none opacity-60 mb-2`,
@@ -43,22 +46,4 @@ const accentTheme = {
 			: type.includes('done')
 			? tw`text-green-400`
 			: tw`text-white`
-};
-
-export enum THEME_TYPES {
-	DEFAULT,
-	ACCENT
-}
-
-/**
- * Tailwind React Native Classnames
- * @description Leverages twrnc and exposes styles object
- */
-export const useTheme = (theme: THEME_TYPES = THEME_TYPES.DEFAULT) => {
-	switch (theme) {
-		case THEME_TYPES.DEFAULT:
-			return defaultTheme;
-		case THEME_TYPES.ACCENT:
-			return accentTheme;
-	}
 };
