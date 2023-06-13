@@ -1,49 +1,39 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/** these can be removed, placed here to mute errors */
-
 import React from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { Text, TextInput, View, Pressable, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { QueryClientProvider, QueryClient, useQueryClient } from '@tanstack/react-query';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { createCompletion } from './modules/OpenAI';
-import styles from './styles';
+import { useTheme, THEME_TYPES } from './theme';
 import { Button } from './components';
-import { useCachedApi } from './hooks';
+import { useUsersApi } from './hooks';
 
 const queryClient = new QueryClient();
 
 type RequestStatus = 'idle' | 'start' | 'end' | 'error';
 
 export function App() {
+	const [activeTheme, setActiveTheme] = React.useState(THEME_TYPES.ACCENT);
 	const [isLoading, setIsLoading] = React.useState<boolean>(false);
 	const [status, setStatus] = React.useState<RequestStatus>('idle');
 	const [generatedQuote, setGeneratedQuote] = React.useState<string | null>('nothing to see here.');
-	const [isCached, setIsCached] = React.useState<string | undefined>('');
-	const [log, setLog] = React.useState<string[]>(['idle']);
-	const cache = useCachedApi();
-	const client = useQueryClient();
+	const [requestLog, setRequestLog] = React.useState<string[]>(['idle']);
+	const styles = useTheme(activeTheme);
 
-	const updateLog = (item: any) => {
-		setLog((state) => [...state, item]);
+	// custom hook that pairs Tanstack Query / Axios
+	const { data: users } = useUsersApi();
+
+	// helper to add items to report log array
+	const updateLog = (item: string) => {
+		setRequestLog((state) => [...state, item]);
 	};
 
+	// method that calls openai endpoint
 	const handleOpenAIRequest = async () => {
 		try {
 			setStatus('start');
-			setLog(['started request..']);
+			setRequestLog(['started request..']);
 			setIsLoading(true);
 			setGeneratedQuote(generatedQuote + '...');
-			setIsCached('');
-
-			new Promise<string>((resolve) => {
-				console.log('Tanstack query hook started..');
-				setTimeout(function () {
-					console.log('Tanstack query hook done!');
-					setIsCached(queryClient.getQueryData(['users']));
-					resolve('Done');
-				}, 1000);
-			});
 
 			updateLog('requesting openai resources..');
 			const response = await createCompletion({
@@ -61,14 +51,14 @@ export function App() {
 			updateLog('all done!');
 			setStatus('end');
 
-			console.log('completion:', completion);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
 			updateLog('request failed!');
 			setStatus('error');
-			console.log(error.message);
 			updateLog(`error: ${error.message}`);
 		} finally {
 			setIsLoading(false);
+			console.log('cached api results:', users?.length);
 		}
 	};
 
@@ -85,8 +75,14 @@ export function App() {
 		}
 	};
 
-	const requestLogColorStyle = (logItem: string) =>
-		logItem.includes('error') ? '#FF0000' : logItem.includes('done') ? '#008000' : '';
+	const RequestLog = () => (
+		<View style={styles.logContainer}>
+			<Text style={styles.logTitle}>Request Log:</Text>
+			{requestLog.map((itm, idx) => (
+				<Text key={`${itm}${idx}`} style={styles.logItem(itm)}>{`- ${itm}`}</Text>
+			))}
+		</View>
+	);
 
 	return (
 		<View style={styles.container}>
@@ -100,16 +96,32 @@ export function App() {
 				value={generatedQuote as string}
 			/>
 
-			<Button onPress={handleOpenAIRequest} disabled={isLoading}>
+			<Button onPress={handleOpenAIRequest} disabled={isLoading} styles={styles}>
 				<Text style={styles.buttonTitle}>{'Request Random Quote'}</Text>
 			</Button>
 
-			<View style={{ marginTop: 40, alignSelf: 'flex-start', height: 100 }}>
-				<Text style={{ fontWeight: 'bold', marginBottom: 10 }}>Request Log:</Text>
-				{log.map((itm) => (
-					<Text key={itm} style={{ color: requestLogColorStyle(itm) }}>{`- ${itm}`}</Text>
-				))}
-			</View>
+			<Button onPress={() => Alert.alert('Not implemented.')} disabled={true} styles={styles}>
+				<Text style={styles.buttonTitle}>Send to Slack (WIP)</Text>
+			</Button>
+
+			{activeTheme !== THEME_TYPES.DEFAULT && (
+				<Pressable
+					style={styles.secondaryButton}
+					onPress={() => setActiveTheme(THEME_TYPES.DEFAULT)}
+				>
+					<Text style={styles.buttonTitle}>Show Default Theme</Text>
+				</Pressable>
+			)}
+
+			{activeTheme !== THEME_TYPES.ACCENT && (
+				<Pressable
+					style={styles.secondaryButton}
+					onPress={() => setActiveTheme(THEME_TYPES.ACCENT)}
+				>
+					<Text style={styles.buttonTitle}>Show Accent Theme</Text>
+				</Pressable>
+			)}
+			<RequestLog />
 
 			<StatusBar style="auto" />
 		</View>

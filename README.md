@@ -100,27 +100,47 @@ console.log('API Domain:', API_DOMAIN)
 
 - [Using Node.js Modules in RN Apps](https://javascript.plainenglish.io/using-core-node-js-modules-in-react-native-apps-e6002a33b6ff)
 
-## Introduction to SemVer
+## Benefits of Semantic Release
 
-### Why version your software?
-  - show progress
-    - signify that one release of a piece of software is different from another release of the same software.
-  - marketing
-    - “Version 2.0.0 has 100 new features over version 1.0.0” 
-  - compatibility
-    - developers use version numbers
-    - developers can make a decision on how compatible different versions are.
+- **Semantic Versioning**: Enforces consistent versioning based on semantic versioning principles.
+- **Automated Release**: Automates versioning and release management based on commit messages and configuration.
+- **Continuous Delivery**: Integrates seamlessly with continuous delivery and deployment workflows.
+- **Consistency**: Ensures standardized versioning and release practices across projects and teams.
+- **Release Notes**: Automatically generates comprehensive release notes and changelogs.
+- **Collaboration**: Streamlines collaboration and communication among team members.
 
-### What do we use?
+By leveraging semantic-release, development teams can streamline the release process, maintain consistency, automate versioning, and improve collaboration.
 
-semantic-release automates the whole package release workflow including: determining the next version number, generating the release notes, and publishing the package.
+Note: Specific implementation and configuration details may vary based on your project and tools used.
 
-npm packages required:
+## Starting with Version 1.0.0
 
-`npm i -D semantic-release @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/npm @semantic-release/changelog`
+When beginning a software project, it's beneficial to start with version 1.0.0 rather than 0.0.1. Here's why:
 
-Things to consider: 
+1. **Clear Communication**: Starting with 1.0.0 signifies that the software is in a stable and usable state. It communicates to users and stakeholders that the project has reached a significant milestone and is ready for production use.
 
-- it's encouraged to start projects with 1.0.0 
-- communicating software stability by using modifiers, like: `v1.0.0-alpha` `v1.0.0-beta` `v1.0.0-preview`
-- [See versioning recommendations by semver..](https://blog.greenkeeper.io/introduction-to-semver-d272990c44f2)
+2. **Compatibility Assurance**: Version 1.0.0 implies that the software follows the principles of semantic versioning. It assures users that future releases within the 1.x.x range will maintain backward compatibility, reducing the risk of breaking changes.
+
+3. **Support for Early Adopters**: By starting with version 1.0.0, you provide clear instructions on compatibility between early versions and user software. This supports early adopters and encourages them to use and provide feedback on your software, contributing to its improvement.
+
+4. **Established Development Habits**: Adopting version 1.0.0 from the start encourages developers to think about software changes in the context of semantic versioning. It establishes the habit of following the SemVer rules and promotes efficient development practices from the beginning.
+
+5. **Marketing and Perception**: Starting at 1.0.0 may also positively impact the perception of your software. It implies that your project is mature, stable, and ready for broader adoption, enhancing its marketability.
+
+Starting with 1.0.0 allows you to set the stage for a stable, backward-compatible software project. It facilitates clear communication, compatibility assurance, support for early adopters, and establishes development habits aligned with semantic versioning principles.
+
+Please note that while starting at 1.0.0 is recommended, the specific versioning approach may vary based on project requirements and the preferences of your development team.
+ - [See versioning recommendations by semver..](https://blog.greenkeeper.io/introduction-to-semver-d272990c44f2)
+
+## Installing Semantic Release Packages
+
+To install the required packages for Semantic Release, follow these steps:
+
+1. Open your terminal or command prompt.
+
+2. Navigate to your project directory.
+
+3. Run the following command to install the necessary packages as dev dependencies:
+
+```shell
+npm install -D semantic-release @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/npm @semantic-release/changelog

@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../api';
 
-export const fetchPosts = async () => {
-	const response = await api.get();
+export const useUsersApi = () => {
+	const fetchUsers = async () => {
+		const response = await api.get('https://jsonplaceholder.typicode.com/users');
 
-	return response.data;
-};
+		return response.data;
+	};
 
-export const useCachedApi = () => {
-	return useQuery(['users'], fetchPosts);
+	return useQuery(['users'], fetchUsers);
 };

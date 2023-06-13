@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 
 const api = axios.create({
 	baseURL: 'http://localhost:3000'
@@ -22,6 +22,6 @@ api.interceptors.request.use(
 );
 
 export default {
-	post: (path = 'https://jsonplaceholder.typicode.com/todos/1') => api.post(path),
-	get: (path = 'https://jsonplaceholder.typicode.com/users') => api.get(path)
+	post: (uri: string, config?: AxiosRequestConfig) => api.post(uri, config),
+	get: (uri: string, config?: AxiosRequestConfig) => api.get(uri, config)
 };
