@@ -1,12 +1,9 @@
 import React from 'react';
 import { Text, TextInput, View, Pressable, Alert } from 'react-native';
-import { createCompletion } from '../modules/OpenAI';
 import { defaultTheme, accentTheme } from '../providers/theme';
 import { Button } from '../components';
-import { useUsersApi } from '../hooks';
-import { useThemeProvider } from '../providers/ThemeProvider';
-
-type RequestStatus = 'idle' | 'start' | 'end' | 'error';
+import { useThemeProvider, useAPIProvider } from '../providers';
+import { RequestStatus } from '../api';
 
 const CONTENT = {
 	title: 'OpenAI Quotes',
@@ -17,13 +14,18 @@ const CONTENT = {
 	accentThemeButtonTitle: 'Show Accent Theme'
 };
 
+const completionOptions = {
+	model: 'text-davinci-003',
+	prompt: 'give me a unique random quote from someone famous to inspire me to be great',
+	temperature: 1,
+	max_tokens: 50
+};
+
 export function Home() {
 	const [isLoading, setIsLoading] = React.useState<boolean>(false);
 	const [status, setStatus] = React.useState<RequestStatus>('idle');
 	const [requestLog, setRequestLog] = React.useState<string[]>(['idle']);
-	const [generatedQuote, setGeneratedQuote] = React.useState<string | null>(
-		CONTENT.quoteDefaultTitle
-	);
+	const [generatedQuote, setGeneratedQuote] = React.useState<string>(CONTENT.quoteDefaultTitle);
 
 	/**
 	 * Custom ThemeProvider hook
@@ -31,16 +33,12 @@ export function Home() {
 	const { theme, setTheme } = useThemeProvider();
 
 	/**
-	 * Custom Transtack Query / Axios hook
-	 * - Caches results from api requests
-	 * - Requires: QueryClientProvider as a parent of this component
+	 * Custom APIProvider hook
 	 */
-	const { data: users } = useUsersApi();
+	const { createCompletion, users } = useAPIProvider();
 
 	// helper to add items to report log array
-	const updateLog = (item: string) => {
-		setRequestLog((state) => [...state, item]);
-	};
+	const updateRequestLog = (item: string) => setRequestLog((state) => [...state, item]);
 
 	// method that calls openai endpoint
 	const handleOpenAIRequest = async () => {
@@ -50,34 +48,29 @@ export function Home() {
 			setIsLoading(true);
 			setGeneratedQuote(generatedQuote + '...');
 
-			updateLog('requesting openai resources..');
-			const response = await createCompletion({
-				model: 'text-davinci-003',
-				prompt: 'give me a unique random quote from someone famous to inspire me to be great',
-				temperature: 1,
-				max_tokens: 50
-			});
+			updateRequestLog('requesting openai resources..');
+			const response = await createCompletion(completionOptions);
 
 			const completion = response.data;
 
-			updateLog('openai request successful..');
+			updateRequestLog('openai request successful..');
 
 			setGeneratedQuote(completion);
-			updateLog('all done!');
+			updateRequestLog('all done!');
 			setStatus('end');
 
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
-			updateLog('request failed!');
+			updateRequestLog('request failed!');
 			setStatus('error');
-			updateLog(`error: ${error.message}`);
+			updateRequestLog(`error: ${error.message}`);
 		} finally {
 			setIsLoading(false);
 			console.log('cached api results:', users?.length);
 		}
 	};
 
-	const getRequestStatus = (status: string) => {
+	const getRequestStatus = (status: RequestStatus) => {
 		switch (status) {
 			case 'idle':
 				return 'Idle';

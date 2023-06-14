@@ -4,7 +4,7 @@ import { setupURLPolyfill } from 'react-native-url-polyfill';
 import { registerRootComponent } from 'expo';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import App from './App';
-import { ThemeProvider } from './providers';
+import { ThemeProvider, APIProvider } from './providers';
 
 /**
  * Conditionally render platform specific logic
@@ -33,9 +33,11 @@ const queryClient = new QueryClient();
 
 const Root = () => (
 	<QueryClientProvider client={queryClient}>
-		<ThemeProvider>
-			<App />
-		</ThemeProvider>
+		<APIProvider>
+			<ThemeProvider>
+				<App />
+			</ThemeProvider>
+		</APIProvider>
 	</QueryClientProvider>
 );
 
