@@ -31,6 +31,9 @@ export const useAPIProvider = (): APIContextType => useContext(APIContext);
 
 /**
  * API Request Provider encapsulates and caches API Requests
+ * @summary
+ * this simply demonstrates how you can fetch a request, cache the results and..
+ * have global access to the request results
  */
 export function APIProvider({ children }: APIProviderProps) {
 	/**
@@ -38,16 +41,14 @@ export function APIProvider({ children }: APIProviderProps) {
 	 * - Caches results from api requests
 	 * - Requires: QueryClientProvider to be the parent of this component
 	 */
-	const { data: users } = useUsersApi();
+	const { data: users, refetch: refetchUsers } = useUsersApi();
 
-	// this object is available with the usage of useAPIProvider hook
-	const state = useMemo(
-		() => ({
-			users,
-			createCompletion
-		}),
-		[]
-	);
+	// object available with the usage of useAPIProvider hook
+	const state = {
+		users,
+		refetchUsers,
+		createCompletion
+	};
 
 	return <APIContext.Provider value={state}>{children}</APIContext.Provider>;
 }
