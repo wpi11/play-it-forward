@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 
 const api = axios.create({
 	baseURL: 'http://localhost:3000'
@@ -23,7 +23,4 @@ api.interceptors.request.use(
 	(error) => Promise.reject(error)
 );
 
-export default {
-	post: (uri: string, config?: AxiosRequestConfig) => api.post(uri, config),
-	get: (uri: string, config?: AxiosRequestConfig) => api.get(uri, config)
-};
+export default api;

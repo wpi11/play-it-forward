@@ -1,14 +1,16 @@
-import React, { ReactNode, createContext, useContext, useMemo } from 'react';
-import { useUsersApi } from '../hooks';
+import React, { ReactNode, createContext, useContext } from 'react';
 import { createCompletion, OPENAI_PROPS } from '../modules/OpenAI';
+import { useTasksApi } from '../hooks';
+import { Task } from '../types/Task';
 
 type APIProviderProps = {
 	children: ReactNode;
 };
 
 type APIContextType = {
-	users: [];
-	createCompletion: ({
+	task?: Task;
+	refetchTasks?: () => void;
+	createCompletion?: ({
 		model,
 		prompt,
 		temperature,
@@ -20,14 +22,14 @@ type APIContextType = {
  * API Context instantiation with defaults
  */
 const APIContext = createContext<APIContextType>({
-	users: [],
+	task: undefined,
 	createCompletion
 });
 
 /**
  * Exposed hook to retrieve cached API request data
  */
-export const useAPIProvider = (): APIContextType => useContext(APIContext);
+export const useAPIProvider = () => useContext<APIContextType>(APIContext);
 
 /**
  * API Request Provider encapsulates and caches API Requests
@@ -41,12 +43,12 @@ export function APIProvider({ children }: APIProviderProps) {
 	 * - Caches results from api requests
 	 * - Requires: QueryClientProvider to be the parent of this component
 	 */
-	const { data: users, refetch: refetchUsers } = useUsersApi();
+	const { data: task, refetch: refetchTasks } = useTasksApi();
 
 	// object available with the usage of useAPIProvider hook
 	const state = {
-		users,
-		refetchUsers,
+		task,
+		refetchTasks,
 		createCompletion
 	};
 
