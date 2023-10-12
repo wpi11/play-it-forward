@@ -1,28 +1,44 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, TouchableNativeFeedback } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import tw from 'twrnc';
 import { LinearGradient } from 'expo-linear-gradient'; // Import LinearGradient
 import DraggableCard from './components/Card/DraggableCard';
-import { useTasksApi } from './hooks';
+import { useTask } from './hooks';
 
 const App = () => {
-	const { data: task } = useTasksApi();
+	const { data: task, isFetching, refetch } = useTask();
 
 	return (
-		<LinearGradient // Add LinearGradient as the background
-			colors={['#FF6B6B', '#FF8E53']}
-			style={styles.container}
-		>
+		<LinearGradient colors={['#FF6B6B', '#FF8E53']} style={styles.container}>
 			<GestureHandlerRootView>
 				<DraggableCard>
-					<View style={{ padding: 10 }}>
-						<Text style={tw`text-xl font-semibold mb-4`}>Task of the Week</Text>
-						<Text style={tw`text-lg font-bold mb-2 text-indigo-600`}>{task?.title}</Text>
-						<Text style={tw`text-gray-600`}>
-							{task?.description}
-							{/* {JSON.stringify(task, null, 2)} */}
-						</Text>
+					<View>
+						{isFetching ? (
+							<>
+								<Text>Loading..</Text>
+							</>
+						) : (
+							<>
+								<Text style={tw`text-xl font-semibold mb-4`}>Task of the Week</Text>
+								<Text style={tw`text-lg font-bold mb-2 text-indigo-600`}>{task?.title}</Text>
+								<Text style={tw`text-gray-600 w-full`}>{task?.description}</Text>
+
+								<View
+									style={{
+										borderRadius: 20,
+										marginTop: 20,
+										padding: 10,
+										alignSelf: 'center',
+										backgroundColor: 'orange'
+									}}
+								>
+									<TouchableNativeFeedback onPress={() => refetch()}>
+										<Text>Get Another Task</Text>
+									</TouchableNativeFeedback>
+								</View>
+							</>
+						)}
 					</View>
 				</DraggableCard>
 			</GestureHandlerRootView>

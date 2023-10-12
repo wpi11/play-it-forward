@@ -33,11 +33,11 @@ const queryClient = new QueryClient();
 
 const Root = () => (
 	<QueryClientProvider client={queryClient}>
-		<APIProvider>
-			<ThemeProvider>
+		<ThemeProvider>
+			<APIProvider>
 				<App />
-			</ThemeProvider>
-		</APIProvider>
+			</APIProvider>
+		</ThemeProvider>
 	</QueryClientProvider>
 );
 

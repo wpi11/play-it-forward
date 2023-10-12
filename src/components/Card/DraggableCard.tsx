@@ -103,7 +103,7 @@ const DraggableCard = ({ children }: { children: ReactNode }) => {
 const styles = StyleSheet.create({
 	container: {
 		width: 300,
-		height: 200,
+		height: 300,
 		justifyContent: 'center',
 		alignItems: 'center'
 	},

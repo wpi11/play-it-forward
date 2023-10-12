@@ -1,5 +1,5 @@
 import React, { ReactNode, createContext, useContext } from 'react';
-import { createCompletion, OPENAI_PROPS } from '../modules/OpenAI';
+import { createCompletion, OPENAI_PROPS } from '../lib/OpenAI';
 import { useTasksApi } from '../hooks';
 import { Task } from '../types/Task';
 
@@ -8,7 +8,7 @@ type APIProviderProps = {
 };
 
 type APIContextType = {
-	task?: Task;
+	tasks?: Task[];
 	refetchTasks?: () => void;
 	createCompletion?: ({
 		model,
@@ -22,7 +22,7 @@ type APIContextType = {
  * API Context instantiation with defaults
  */
 const APIContext = createContext<APIContextType>({
-	task: undefined,
+	tasks: undefined,
 	createCompletion
 });
 
@@ -43,14 +43,14 @@ export function APIProvider({ children }: APIProviderProps) {
 	 * - Caches results from api requests
 	 * - Requires: QueryClientProvider to be the parent of this component
 	 */
-	const { data: task, refetch: refetchTasks } = useTasksApi();
+	const { data: tasks, refetch: refetchTasks } = useTasksApi();
 
 	// object available with the usage of useAPIProvider hook
 	const state = {
-		task,
+		tasks,
 		refetchTasks,
 		createCompletion
-	};
+	} as APIContextType;
 
 	return <APIContext.Provider value={state}>{children}</APIContext.Provider>;
 }
